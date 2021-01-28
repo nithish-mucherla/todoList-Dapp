@@ -20,6 +20,7 @@ App = {
                 // Request account access if needed
                 await ethereum.enable();
                 // Acccounts now exposed
+                console.log("liad");
                 web3.eth.sendTransaction({/* ... */});
             } catch (error) {
                 // User denied account access...
@@ -39,7 +40,7 @@ App = {
 
     loadAccount : async () => {
         App.account = web3.eth.accounts[0];
-        console.log(App.account);
+        web3.eth.defaultAccount = web3.eth.accounts[0];
     },
 
     loadContract: async () => {
@@ -47,6 +48,13 @@ App = {
         App.contracts.TodoList = TruffleContract(todoList);
         App.contracts.TodoList.setProvider(App.web3Provier);
         App.todoList = await App.contracts.TodoList.deployed();
+    },
+
+    createTask: async () => {
+        App.setLoading(true);
+        const content = $("#newTask").val();
+        await App.todoList.createTask(content);
+        window.location.reload();
     },
 
     render: async () => {
@@ -68,7 +76,6 @@ App = {
 
     renderTasks: async () => {
         // Load the total task count from the blockchain
-        console.log(App.todoList);
         const address = await App.todoList.address;
         console.log(address);
         const taskCount = await App.todoList.taskCount()
